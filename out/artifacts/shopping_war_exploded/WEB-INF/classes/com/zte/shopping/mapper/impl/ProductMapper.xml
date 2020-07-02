@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zte.shopping.mapper.IProductMapper">
+
+    <resultMap type="Product" id="productMapper">
+        <id property="productId" column="product_id" />
+        <result property="productNo" column="product_no" />
+        <result property="name" column="product_name" />
+        <result property="price" column="price" />
+        <result property="status" column="status" />
+        <result property="productType" column="name" />
+    </resultMap>
+
+    <sql id="productColumn">
+		product_id,
+		product_no,
+		product_name,
+		price,
+		image,
+		product_type_id,
+		status
+		name
+	</sql>
+
+    <select id="selectAll" resultMap="productMapper" >
+        select a.*,b.name from sys_product a,sys_product_type b
+        where a.product_type_id = b.id
+    </select>
+
+    <select id="selectByName" parameterType="string" resultMap="productMapper">
+        select a.*,b.name from sys_product a,sys_product_type b
+        where
+        a.product_type_id = b.id
+        and product_name = #{name}
+    </select>
+
+    <insert id="insertProduct">
+          insert into
+              sys_product(product_name, price,product_type_id,status)
+          values(#{name}, #{price},#{type},#{status})
+     </insert>
+
+   <update id="updateStatus">
+          update
+              sys_product
+          set status = #{1}
+              where product_id = #{0}
+     </update>
+
+    <select id="selectById" parameterType="integer" resultMap="productMapper">
+        select * from
+        sys_product
+        where product_id = #{id}
+    </select>
+
+    <update id="updateName">
+          update
+               sys_product
+          set
+               product_name = #{1},price=#{2},product_type_id=#{3}
+          where
+               product_id = #{0}
+     </update>
+
+    <!-- 前台  组合查询商品信息列表 -->
+    <select id="selectByParamList" parameterType="com.zte.shopping.util.ProductParameter" resultMap="productMapper">
+        select
+        p.product_id,
+        p.product_name,
+        p.price,
+        p.image,
+        pt.id,
+        pt.name,
+        pt.status
+        from
+        sys_product p
+        left join
+        sys_product_type pt
+        on
+        p.product_type_id = pt.id
+        where
+        pt.status = #{status}
+
+        <if test="minPrice != null and minPrice != ''">
+            and p.price &gt;=#{minPrice}
+        </if>
+
+        <if test="maxPrice != null and maxPrice != ''">
+            and p.price &lt;= #{maxPrice}
+        </if>
+
+        <if test="productTypeId != -1 and productTypeId != null and productTypeId != ''">
+            and pt.id = #{productTypeId}
+        </if>
+    </select>
+
+</mapper>

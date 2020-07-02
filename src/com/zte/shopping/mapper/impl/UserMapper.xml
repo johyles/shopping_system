@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.shopping.mapper.IUserMapper">
+    <!-- 注册会员 (前台) -->
+    <insert id="insertUser" parameterType="User">
+		insert into 
+		    sys_user(user_name,login_name,password,phone,address,is_valid,regist_date)
+		values(#{userName}, #{loginName}, #{password}, #{phone}, #{address}, #{isValid}, #{registDate})
+	</insert>
+
+	<select id="logincheck" resultType="User">
+		select * from sys_user where login_name=#{username} and password=#{pwd}
+	</select>
+
+	<resultMap id="userMapper" type="User">
+		<result property="userId" column="user_id"/>
+		<result property="userName" column="user_name"/>
+		<result property="loginName" column="login_name"/>
+		<result property="password" column="password"/>
+		<result property="phone" column="phone"/>
+		<result property="address" column="address"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="registDate" column="regist_date"/>
+	</resultMap>
+
+	<!-- 根据账号、密码、是否有效、角色、查询有效的用户信息 -->
+	<select id="selectUserListByUser" resultMap="userMapper" parameterType="User">
+		select * from sys_user
+		<trim prefix="where" prefixOverrides="and|or">
+			<if test="userId!=null and userId!=''">
+				and user_id=#{userId}
+			</if>
+			<if test="userName!=null and userName!=''">
+				and user_name like CONCAT ('%',#{userName},'%')
+			</if>
+			<if test="loginName!=null and loginName!=''">
+				and login_name like CONCAT ('%',#{loginName},'%')
+			</if>
+			<if test="phone!=null and phone!=''">
+				and phone like CONCAT ('%',#{phone},'%')
+			</if>
+			<if test="address!=null and address!=''">
+				and address like CONCAT ('%',#{address},'%')
+			</if>
+			<if test="isValid!=null ">
+				and is_valid=#{isValid}
+			</if>
+		</trim>
+	</select>
+
+	<!--用户修改-->
+	<update id="modifyuser" parameterType="User">
+		update sys_user
+		<trim prefix="set" suffix="where user_id=#{userId}" suffixOverrides=",">
+			<if test="userName!=null and userName!=''"> user_name =#{userName},</if>
+			<if test="loginName!=null and loginName!=''"> login_name =#{loginName},</if>
+			<if test="phone!=null and phone!=''"> phone =#{phone},</if>
+			<if test="address!=null and address!=''"> address =#{address},</if>
+			<if test="isValid!=null"> is_valid =#{isValid}</if>
+		</trim>
+	</update>
+
+	<insert id="addUser" >
+		insert into
+		    sys_user(user_name,login_name,password,phone,address,is_valid)
+		values(#{rUserName}, #{rLoginName}, #{rPassword}, #{rPhone}, #{rAddress}, #{isValid})
+	</insert>
+
+	<select id="selectByName" resultMap="userMapper" >
+		select * from sys_user
+		where login_name = #{name}
+	</select>
+
+	<update id="modifyPasswordById">
+          update
+              sys_user
+          set
+               password = #{newPassword}
+          where
+               user_id = #{userId}
+     </update>
+
+	<update id="modifyMessage">
+          update
+              sys_user
+          set
+               phone = #{phone},address =#{address}
+          where
+               user_id = #{userId}
+     </update>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zte.shopping.mapper.IDeptManagerMapper">
+
+    <select id="selectDeptAll"  resultMap="DeptMapper">
+        select * from sys_dept
+    </select>
+
+    <resultMap type="Dept" id="DeptMapper">
+        <id property="deptId" column="dept_id" />
+        <result property="deptName" column="dept_name" />
+        <result property="deptNo" column="dept_no" />
+        <result property="fatherDept" column="f_dept_name" />
+        <result property="remark" column="remark" />
+        <result property="createDate" column="create_date" />
+        <result property="staff" column="create_staff_id" />
+        <result property="isValid" column="is_valid" />
+    </resultMap>
+
+
+    <select id="selectAll" resultMap="DeptMapper" >
+         select a.*,b.dept_name as f_dept_name from sys_dept a,sys_dept b
+        where a.father_dept_id = b.dept_id
+       <!-- where  1=1
+         <if test="father_dept_id !=null and father_dept_id !=''">
+             and a.father_dept_id = b.dept_id
+         </if>-->
+
+    </select>
+
+    <select id="selectByName" parameterType="String" resultMap="DeptMapper">
+        select * from sys_dept
+        where dept_name =#{name}
+    </select>
+
+    <insert id="insertDept">
+          insert into sys_dept(dept_name, remark,is_valid,dept_no,father_dept_id)
+          values(#{name}, #{remark},#{deptStatusEnable},#{deptNum},#{fatherDeptId})
+     </insert>
+
+    <select id="selectById" parameterType="integer" resultMap="DeptMapper">
+        select * from sys_dept
+        where dept_id = #{id}
+    </select>
+
+    <update id="updateName">
+          update
+              sys_dept
+          set
+               dept_name = #{name},remark =#{duty}
+          where
+               dept_id = #{id}
+     </update>
+
+    <update id="updateStatus">
+        UPDATE sys_dept a,sys_dept b,sys_staff c
+            set   a.is_valid=#{deptStatus},b.is_valid=#{deptStatus},c.is_valid=#{deptStatus}
+                where b.father_dept_id=a.dept_id and a.dept_id=#{id} and c.dept_id=#{id}
+     </update>
+
+</mapper>

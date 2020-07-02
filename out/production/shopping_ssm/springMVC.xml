@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+                             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+                             http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+                          ">
+
+    <!-- 1.扫描包 -->
+
+    <!-- 5.扫描action层包 -->
+    <context:component-scan base-package="com.zte.shopping.action" />
+
+
+    <!-- 2.配置 HadnlerMapping + HandlerAdapter -->
+    <mvc:annotation-driven />
+
+    <!-- 3.配置 viewResolver + view -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 项目中使用的  视图技术/模板引擎  是JSP(官方默认) 如果我们项目中只用了JSP 则此属性可以省略 -->
+        <!-- <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/> -->
+
+        <!-- 要访问的页面  /WEB-INF/jsp/xxx.jsp -->
+        <!--  配置要访问页面的前缀   -->
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+
+        <!-- 配置要访问页面的后缀 -->
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+<!--    跳转到主页: /WEB-INF/jsp/main.jsp  -->
+    <mvc:view-controller path="/showMain" view-name="main" />
+
+    <!-- 跳转到后台管理登录页面:  WEB-INF/jsp/backend/login.jsp -->
+    <mvc:view-controller path="/showLogin" view-name="backend/login" />
+
+    <!-- 4. 配置静态资源访问 xxx.js  xxx.css  图片 -->
+     <!--<mvc:default-servlet-handler/>-->
+     <mvc:resources location="/" mapping="/**"/>
+
+    <!-- SpringMVC对文件上传的支持 配置CommonsMultipartResolver -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 设置编码方式 -->
+        <property name="defaultEncoding" value="utf-8" />
+        <!--  100M = 1 * 1024 * 1024 * 100  最终上传100M的文件 -->
+        <property name="maxUploadSize" value="104587600" />
+    </bean>
+
+
+</beans>

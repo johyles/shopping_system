@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zte.shopping.mapper.IItemMapper">
+
+        <select id="selectItem" resultMap="ItemMapper">
+            select i.id ,i.num ,i.price , p.image, p.product_name ,p.product_id,o.id AS oid  from
+            sys_item i ,sys_order o ,sys_product p
+            where i.product_id=p.product_id and i.order_id=o.id
+            and o.no=#{orderNo}
+        </select>
+    <resultMap id="ItemMapper" type="Item">
+        <result property="id" column="id"/>
+        <result property="num" column="num"/>
+        <result property="price" column="price"/>
+        <association property="product" javaType="Product" resultMap="iproduct"/>
+        <association property="order" javaType="Order" resultMap="iorder"/>
+    </resultMap>
+    <resultMap id="iproduct" type="Product">
+        <result property="name" column="name"/>
+        <result property="image" column="image"/>
+        <result property="productId"  column="product_id"/>
+    </resultMap>
+    <resultMap id="iorder" type="Order">
+        <result property="id" column="oid"/>
+    </resultMap>
+
+    <!-- 添加多个明细 (套在循环中添加) -->
+    <insert id="insertItem" parameterType="Item">
+          insert into
+		      sys_item(product_id, num, order_id, price)
+		  values
+			  ( #{product.productId}, #{num}, #{order.id}, #{price} )
+     </insert>
+
+
+</mapper>

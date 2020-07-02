@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.shopping.mapper.IStaffMapper">
+
+    <select id="loginStaff" resultMap="staffMapper2">
+        select * from sys_staff where login_name=#{loginName} and password=#{password}
+    </select>
+    <resultMap id="staffMapper2" type="Staff">
+        <result property="staffId" column="staff_id"/>
+        <result property="staffName" column="staff_name"/>
+        <result property="loginName" column="login_name"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="role" column="role" />
+        <result property="isValid" column="is_valid" />
+        <result property="deptId" column="dept_id" />
+        <result property="deptId" column="dept_id" />
+        <result property="createDate" column="create_date" />
+    </resultMap>
+
+
+    <!-- 动态  模糊  查询   管理员信息 -->
+    <select id="selectFuzzyByParams" parameterType="staff" resultMap="staffMapper">
+        select
+        s.staff_id,
+        s.staff_name,
+        s.login_name,
+        s.phone,
+        s.email,
+        s.role,
+        s.is_valid,
+        d.dept_id,
+        d.dept_name,
+        d.is_valid    'd.is_valid'
+        from
+        sys_staff s
+        left join
+        sys_dept d
+        on s.dept_id = d.dept_id
+        ORDER BY s.staff_id
+        <where>
+            <if test="staffName != null and staffName != '' ">
+                <bind name="staffName" value="'%' + _parameter.staffName + '%'" />
+                and staff_name like #{staffName} escape '/'
+            </if>
+
+            <if test="loginName != null and loginName != '' ">
+                <bind name="loginName" value="'%' + _parameter.loginName + '%'" />
+                and login_name like #{loginName} escape '/'
+            </if>
+
+            <if test="phone != null and phone != '' ">
+                <bind name="phone" value="'%' + _parameter.phone +'%'"/>
+                and phone like #{phone} escape '/'
+            </if>
+
+            <if test="email != null and email != '' ">
+                <bind name="email" value="'%' + _parameter.email +'%'"/>
+                and email like #{email} escape '/'
+            </if>
+
+            <if test="dept != null">
+                and s.dept_id = #{dept.deptId}
+            </if>
+
+            <if test="role != -1 and role != null and role != '' ">
+                and role = #{role}
+            </if>
+
+            <if test="isValid != null and isValid != '' and isValid != -1 or isValid == 0">
+                and s.is_valid = #{isValid}
+            </if>
+        </where>
+    </select>
+
+    <resultMap id="staffMapper" type="Staff">
+        <result property="staffId" column="staff_id"/>
+        <result property="staffName" column="staff_name"/>
+        <result property="loginName" column="login_name"/>
+        <result property="password" column="password"/>
+        <result property="phone" column="phone" />
+        <result property="email" column="email" />
+        <result property="role" column="role" />
+        <result property="isValid" column="is_valid" />
+        <result property="createDate" column="create_date" />
+        <result property="deptId" column="dept_id"/>
+        <association property="dept" javaType="Dept" resultMap="two"/>
+    </resultMap>
+    <resultMap id="two" type="Dept">
+        <result property="deptName" column="dept_name"/>
+    </resultMap>
+
+    <!-- 修改-->
+    <update id="modifyStaff" parameterType="Staff" >
+        update sys_staff
+        <trim prefix="set" suffix="where staff_id=#{staffId}" suffixOverrides=",">
+            <if test="staffName!=null and staffName!=''"> staff_name =#{staffName},</if>
+            <if test="loginName!=null and loginName!=''"> login_name =#{loginName},</if>
+            <if test="phone!=null and phone!=''"> phone =#{phone},</if>
+            <if test="email!=null and email!=''"> email =#{email},</if>
+            <if test="isValid!=null">is_valid=#{isValid},</if>
+            <if test="role!=null"> role =#{role},</if>
+            <if test="deptId!=null"> dept_id=#{deptId}</if>
+        </trim>
+    </update>
+
+    <insert id="insertStaff" parameterType="Staff">
+         insert into sys_staff(staff_name,login_name,phone,email,is_valid,role,dept_id,password)
+         values(#{staffName},#{loginName},#{phone},#{email},#{isValid},#{role},#{deptId},#{password})
+     </insert>
+
+    <select id="selectByLoginName" resultMap="staffMapper2">
+        select * from sys_staff where login_name=#{loginName}
+    </select>
+
+    <!-- 修改管理员   时查询  要修改的管理员信息 -->
+    <select id="selectById" parameterType="integer" resultMap="staffMapper2">
+           select
+               s.staff_id,
+               s.staff_name,
+               s.login_name,
+               s.phone,
+               s.email,
+               s.role,
+               s.is_valid,
+               d.dept_id,
+               d.dept_name,
+               d.is_valid   'd.is_valid'
+           from
+               sys_staff s
+           left  join
+               sys_dept d
+           on
+               s.dept_id = d.dept_id
+           where
+               s.staff_id = #{staffId}
+     </select>
+
+    <!-- 修改管理员 -->
+    <update id="updateStaff">
+          update
+               sys_staff
+          set
+               staff_name = #{staffName},
+               phone      = #{phone},
+	           email      = #{email},
+			   role       = #{role},
+			   dept_id    = #{dept.deptId}
+		where staff_id = #{staffId}
+     </update>
+
+	
+	
+</mapper>

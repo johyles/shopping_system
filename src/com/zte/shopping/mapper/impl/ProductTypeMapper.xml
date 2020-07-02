@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zte.shopping.mapper.IProductTypeMapper">
+
+     <sql id="typeColumn">
+          id,
+          name,
+          status
+     </sql>
+
+     <select id="selectAll" resultType="productType" >
+           select 
+              <include refid="typeColumn" />
+           from sys_product_type
+     </select>
+     
+     <select id="selectByName" parameterType="string" resultType="productType">
+          select
+               <include refid="typeColumn" />
+          from
+               sys_product_type
+          where 
+               name = #{name}
+     </select>
+     
+     <insert id="insertProductType">
+          insert into
+              sys_product_type(name, status)
+          values(#{0}, #{1})
+     </insert>
+     
+     <update id="updateStatus">
+          UPDATE
+                sys_product a,sys_product_type b
+          set   a.`status`=#{1},b.`status`=#{1}
+                where a.product_type_id=#{0} and b.id=#{0}
+     </update>
+     
+     <select id="selectById" parameterType="integer" resultType="productType">
+          select 
+              <include refid="typeColumn" />
+          from
+              sys_product_type
+          where id = #{id}
+     </select>
+     
+     <update id="updateName">
+          update 
+               sys_product_type
+          set
+               name = #{1}
+          where
+               id = #{0}
+     </update>
+     
+     <!-- 查询所有有效的商品类型 -->
+     <select id="selectByProductTypeStatus" parameterType="int" resultType="productType">
+           select 
+               <include refid="typeColumn" />
+           from 
+               sys_product_type
+           where 
+               status = #{status}
+     </select>
+</mapper>

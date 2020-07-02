@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zte.shopping.mapper.ISequenceMapper">
+      
+      <sql id="sequenceColumn">
+           id,
+           name,
+           value
+      </sql>
+
+      <select id="selectByName" parameterType="string" resultType="sequence">
+          select 
+               <include refid="sequenceColumn" />
+          from 
+               sys_sequence
+          where name = #{name}
+      </select>
+      
+      <insert id="insertSequence" parameterType="Sequence">
+           insert into
+                sys_sequence(name, value)
+           values(#{name}, #{value})     
+      </insert>
+      
+      <update id="updateSquenceValue">
+           update
+               sys_sequence
+           set
+               value = #{1}
+           where
+               name = #{0}
+      </update>
+</mapper>

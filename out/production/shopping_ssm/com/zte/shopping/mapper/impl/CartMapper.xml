@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zte.shopping.mapper.ICartMapper">
+
+    <!-- 添加多个明细 (套在循环中添加) -->
+    <insert id="insertItem" parameterType="Item">
+          insert into
+		      sys_item(product_id, num, order_id, price)
+		  values
+			  ( #{product.productId}, #{num}, #{order.id}, #{price} )
+     </insert>
+
+</mapper>

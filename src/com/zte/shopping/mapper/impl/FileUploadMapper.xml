@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.zte.shopping.mapper.FileUploadMapper">
+
+
+	<insert id="addPath" >
+		insert into 
+		    sys_attache(file_path,user_id)
+		values(#{fangWenPath}, #{id})
+	</insert>
+
+
+	<delete id="deleteById">
+		delete from sys_attache where user_id = #{id}
+	</delete>
+
+	<select id="selectById" parameterType="integer" resultMap="AttacheMapper">
+		select * from sys_attache where user_id = #{userId}
+	</select>
+
+	<resultMap type="Attache" id="AttacheMapper">
+		<id property="attacheId" column="attache_id" />
+		<result property="fileType" column="file_type" />
+		<result property="filePath" column="file_path" />
+		<result property="userId" column="user_id" />
+	</resultMap>
+
+
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+    <!-- 1.配置DispatcherServlet -->
+    <servlet>
+        <servlet-name>controller</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+
+        <!-- 2.自定义SpringMVC配置文件位置 -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springMVC.xml</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>controller</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+
+    <!-- 3.自定义Spring配置文件位置 -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring.xml</param-value>
+    </context-param>
+
+    <!-- 4.监听器  -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- 5.post请求字符编码过滤器 -->
+    <filter>
+        <filter-name>character</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>character</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
