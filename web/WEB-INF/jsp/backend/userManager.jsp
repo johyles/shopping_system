@@ -130,6 +130,31 @@
                     });
             });
 
+            //导出
+            $("input[name='outputuser']").click(function () {
+                $.ajax({
+                    type:"post",
+                    url:"${pageContext.request.contextPath }/user/outputuserexcel",
+                    data:{
+                    },
+                    dataType : "json",
+                    async:false,
+                    success  : function(result)
+                    {
+                        if (result.responseCode == 1)
+                        {
+                            alert("导出成功!");
+                        }else
+                        {
+                            alert("导出失败!");
+                        }
+                    },
+                    error:function () {
+                        alert("服务器内容错误3!");
+                    }
+                });
+            });
+
 
 
         });
@@ -174,7 +199,16 @@
                 <input type="submit"  class="btn btn-primary" id="doSearch" value="查询" >
             </form>
         </div>
-        <%--数据表单显示栏--%>
+            <input type="button" value="导出" class="btn btn-primary" name="outputuser" id="outputuser">
+            &nbsp;&nbsp;<form method="POST"  enctype="multipart/form-data" id="form2" action="${pageContext.request.contextPath }/user/inputuserexcel">
+            <table>
+                <tr>
+                    <td> <input id="userfile" type="file" name="userfile" ></td>
+                    <td><input type="submit" value="提交" id="inputbtn" name="inputbtn" class="btn btn-primary"></td>
+                </tr>
+
+
+            <%--数据表单显示栏--%>
         <div class="show-list" style="position: relative;top: 30px;">
             <table class="table table-bordered table-hover" style='text-align: center;'>
                 <thead>

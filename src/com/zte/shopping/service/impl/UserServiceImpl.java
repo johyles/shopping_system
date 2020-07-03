@@ -3,6 +3,7 @@ package com.zte.shopping.service.impl;
 import com.zte.shopping.entity.User;
 import com.zte.shopping.mapper.IUserMapper;
 import com.zte.shopping.service.IUserService;
+import com.zte.shopping.util.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +21,18 @@ public class UserServiceImpl implements IUserService
     private IUserMapper userMapper;
 
     @Override
-    public void insertUser(User user) {
-
+    public boolean insertUser(User user) {
+        String pwd= MD5Util.md5(user.getPassword());
+        user.setPassword(pwd);
+        try {
+            userMapper.insertUser(user);
+            return true;
+        }catch (Exception r){
+            r.printStackTrace();
+            return false;
+        }
     }
+
 
     @Override
     public List<User> logincheck(String username, String pwd) {

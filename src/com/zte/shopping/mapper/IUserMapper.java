@@ -13,6 +13,7 @@ public interface IUserMapper
 	 * 添加会员
 	 */
 	public void insertUser(User user);
+
 	public List<User> logincheck(@Param("username") String username, @Param("pwd") String pwd);
 
 	//模糊查询--也可以是总的查询

@@ -6,10 +6,16 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zte.shopping.entity.Staff;
+import com.zte.shopping.exception.*;
 import com.zte.shopping.util.ExcelTest;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +26,12 @@ import com.github.pagehelper.PageInfo;
 import com.zte.shopping.constant.DictConstant;
 import com.zte.shopping.constant.ResponseCodeConstant;
 import com.zte.shopping.entity.ProductType;
-import com.zte.shopping.exception.ProductTypeExistException;
-import com.zte.shopping.exception.RequestParameterException;
 import com.zte.shopping.service.IProductTypeService;
 import com.zte.shopping.util.ParameterUtil;
 import com.zte.shopping.util.ResponseResult;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import static com.zte.shopping.util.ExcelTest.createCellTitleStyle;
 
@@ -166,27 +171,6 @@ public class ProductTypeController
 	}
 
 	/**
-	 * Cell设置样式
-	 */
-	public static HSSFCellStyle createCellTitleStyle(HSSFWorkbook workbook, short fontColor, short fontSize)
-	{
-		HSSFCellStyle cellStyle = workbook.createCellStyle();//单元格对象
-
-		cellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);  // 水平居中
-		cellStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);  // 垂直居中
-
-
-		HSSFFont font = workbook.createFont();//字体对象
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);  // 加粗
-		font.setColor(fontColor);   // 字体颜色
-		font.setFontHeightInPoints(fontSize);  // 字体大小
-
-		// 将font添加到cellStyle
-		cellStyle.setFont(font);
-
-		return cellStyle;
-	}
-	/**
 	 * 添加商品类型(采用ajax来添加)
 	 * 
 	 * 我们需要让SpringMVC知道,我们需要返回的是数据模型 ---> 采用@ResponseBoby注解标注在当前方法addType上
@@ -305,5 +289,183 @@ public class ProductTypeController
 		}
 		
 		return result;
+	}
+
+	//导出管理员信息表
+	@RequestMapping("/OutputExcel")
+	public ModelAndView exportStaff(ProductType typeParameter,
+									HttpServletResponse response)throws IOException {
+
+		response.setContentType("text/html;charset=UTF-8");
+		PrintWriter out = response.getWriter();
+
+		ModelAndView modelAndView = new ModelAndView();
+		try
+		{
+			// 1.创建一个工作簿Workbook
+			HSSFWorkbook workbook = new HSSFWorkbook();
+
+			// 2.创建工作表 Sheet
+			HSSFSheet sheet = workbook.createSheet("productType");
+			sheet.setDefaultRowHeightInPoints(20);  // 设置行高
+			sheet.setDefaultColumnWidth(12);        // 设置列宽
+
+			// 合并单元格:CellRangeAddress
+			//     (1)将第一个Row中的7列合并成一列
+			//     new CellRangeAddress(0, 0, 0, 6); 下表从0开始   从第1行   第1行   第1列   第8列  合并单元格
+			CellRangeAddress cellRangeAddress = new CellRangeAddress(0, 0, 0, 2);
+			//     (2)做合并单元格操作
+			sheet.addMergedRegion(cellRangeAddress);
+
+			// 3.创建行
+			//   a.创建标题行,并设置标题
+			HSSFRow rowTitle = sheet.createRow(0);
+			rowTitle.setHeightInPoints(40);   // 行高
+			HSSFCell cellTitle = rowTitle.createCell(0);   // 设置标题列
+			cellTitle.setCellStyle(createCellTitleStyle(workbook, HSSFColor.RED.index, (short)13));
+			cellTitle.setCellValue("商品类型表");
+
+			//   b.创建导出哪些数据的提示信息
+			HSSFRow rowTip = sheet.createRow(1);
+			//
+			String[] tips = {"编号", "商品名称", "状态"};
+
+			for (int i = 0; i < tips.length; i++)
+			{
+				HSSFCell cellTip = rowTip.createCell(i);
+				cellTip.setCellStyle(createCellTitleStyle(workbook, HSSFColor.BLACK.index, (short)12));
+				// 往提示信息行中加入7列  设置信息行中单元格Cell的内容
+				cellTip.setCellValue(tips[i]);
+			}
+
+			// 4.遍历学生信息列表 塞入到对应的单元格中
+			List<ProductType> typeList = productTypeService.findAll();
+			if (typeList != null && typeList.size() != 0)
+			{
+				for (int i = 0; i < typeList.size(); i++)
+				{
+					ProductType productType = typeList.get(i);
+
+					HSSFRow rowContent = sheet.createRow(i + 2);
+
+
+					// 第1列: 编号
+					HSSFCell cellContent1 = rowContent.createCell(0);
+					cellContent1.setCellValue(productType.getId());
+
+					// 第2列: 名称
+					HSSFCell cellContent2 = rowContent.createCell(1);
+					cellContent2.setCellValue(productType.getName());
+
+					// 第3列: 状态
+					HSSFCell cellContent3 = rowContent.createCell(2);
+					cellContent3.setCellValue(productType.getStatus());
+
+				}
+			}
+
+			FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\16090\\Desktop\\22.xls");
+
+			workbook.write(fileOutputStream);
+			workbook.close();
+			out.flush();
+			out.println("<script>alert('导出成功！');</script>");
+			modelAndView.setViewName("backend/productTypeManager");
+
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return modelAndView;
+
+	}
+
+	/**
+	 * Cell设置样式
+	 * @return cellStyle
+	 */
+	public static HSSFCellStyle createCellTitleStyle(HSSFWorkbook workbook, short fontColor, short fontSize)
+	{
+		HSSFCellStyle cellStyle = workbook.createCellStyle();
+
+		cellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);  // 水平居中
+		cellStyle.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);  // 垂直居中
+
+
+		HSSFFont font = workbook.createFont();
+		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		font.setColor(fontColor);
+		font.setFontHeightInPoints(fontSize);
+
+		// 将font添加到cellStyle
+		cellStyle.setFont(font);
+
+		return cellStyle;
+	}
+
+	//导入管理员信息
+	@RequestMapping("/ImportExcel")
+	public ModelAndView inputStaff(String pageNo, HttpSession session, HttpServletResponse response)throws IOException {
+		ModelAndView modelAndView=new ModelAndView();
+		response.setContentType("text/html;charset=UTF-8");
+		PrintWriter out = response.getWriter();
+		try
+		{
+			XSSFWorkbook workbook = new XSSFWorkbook("C:\\Users\\16090\\Desktop\\2222.xlsx");
+
+			// 2.读取工作表 Sheet
+			XSSFSheet sheet = workbook.getSheetAt(0);
+
+			// 3.读取数据行
+			int lastRowNum=sheet.getLastRowNum();
+
+			ProductType productType=new ProductType();
+
+			// for 循环 start
+			for (int i = 1; i <=lastRowNum; i++)
+			{
+				// 获取数据行
+				XSSFRow row= sheet.getRow(i);
+
+				if(row!=null) {
+					String name="";
+					if(row.getCell(1)!=null) {
+						row.getCell(1).setCellType(Cell.CELL_TYPE_STRING);
+						name= row.getCell(1).getStringCellValue();
+						// 用户名
+						productType.setName(name);
+					}
+
+					if(row.getCell(2)!=null) {
+						row.getCell(2).setCellType(Cell.CELL_TYPE_STRING);
+						Integer status = Integer.valueOf(row.getCell(2).getStringCellValue());
+						productType.setStatus(status);
+					}
+
+					// 导入管理员信息操作
+					productTypeService.addType(name);
+				}
+			}
+
+			// for 循环 end
+			// 结束事务
+			workbook.close();
+
+			//modelAndView.setViewName("backend/staffManager");
+			out.flush();
+			out.println("<script>alert('导入成功！');</script>");
+			modelAndView.setViewName("backend/productTypeManager");
+
+			// if 判断end
+
+		} catch (IOException | ProductTypeExistException | RequestParameterException e)
+		{
+			e.printStackTrace();
+			out.flush();
+			out.println("<script>alert('导入失败！');</script>");
+			modelAndView.setViewName("backend/productTypeManager");
+		}
+		return modelAndView;
+
 	}
 }

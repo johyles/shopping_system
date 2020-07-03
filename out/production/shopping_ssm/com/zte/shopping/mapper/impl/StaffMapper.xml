@@ -16,11 +16,11 @@
         <result property="role" column="role" />
         <result property="isValid" column="is_valid" />
         <result property="deptId" column="dept_id" />
-        <result property="deptId" column="dept_id" />
         <result property="createDate" column="create_date" />
     </resultMap>
 
 
+    <!-- 动态  模糊  查询   管理员信息 -->
     <!-- 动态  模糊  查询   管理员信息 -->
     <select id="selectFuzzyByParams" parameterType="staff" resultMap="staffMapper">
         select
@@ -39,7 +39,6 @@
         left join
         sys_dept d
         on s.dept_id = d.dept_id
-        ORDER BY s.staff_id
         <where>
             <if test="staffName != null and staffName != '' ">
                 <bind name="staffName" value="'%' + _parameter.staffName + '%'" />

@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IUserService {
 
-    public void insertUser(User user);
+    public boolean insertUser(User user);
 
     public List<User> logincheck(String username, String pwd);
 

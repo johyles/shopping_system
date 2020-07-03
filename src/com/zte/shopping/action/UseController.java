@@ -15,13 +15,17 @@ import com.zte.shopping.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -290,5 +294,84 @@ public class UseController {
         mv.setViewName("redirect:/user/userManager.html?pageNo="+pageNo);
         return mv;
     }
+
+    //导入表格
+    @RequestMapping(value = "/inputuserexcel",method = RequestMethod.POST)
+    public String inputExcel(@RequestParam("userfile") CommonsMultipartFile file, HttpServletResponse response) throws Exception {
+        // 原始的文件名
+        String oriFilrName=file.getOriginalFilename();
+        System.out.println(oriFilrName+"{");
+        System.out.println("通过 jquery.form.js 提供的ajax方式上传文件！");
+
+        InputStream in =null;
+        if(file.isEmpty()){
+            throw new Exception("文件不存在！");
+        }
+
+        in = file.getInputStream();
+        List<UserVo> list=ImportExcelUtiil.getworkbook2(oriFilrName,in);
+        System.out.println(list.get(0).getLoginName()+"?");
+        //该处可调用service相应方法进行数据保存到数据库中，现只对数据输出
+        response.setCharacterEncoding("utf-8");  //防止ajax接受到的中文信息乱码
+        //插入数据库中
+        for(UserVo userVo:list){
+            User user=new User();
+            user.setLoginName(userVo.getLoginName());
+            List<User> list1=userService.selectUserListByUser(user);
+            user.setAddress(userVo.getAddress());
+            user.setUserName(userVo.getUserName());
+            user.setPhone(userVo.getPhone());
+            user.setPassword("123");
+            if(user.getLoginName().equals("") || user.getUserName().equals("")){
+                System.out.println("这一行有空的");
+            }else{
+                if(list1.size()>=1){
+                    System.out.println(user.getLoginName()+"重复");
+                }else {
+                    if(userService.insertUser(user)){
+                        System.out.println("导入"+user.getLoginName()+"成功");
+                    }else {
+                        System.out.println("导入"+user.getLoginName()+"失败");
+                    }
+                }
+            }
+
+        }
+
+
+        return "redirect:/user/userManager.html";
+    }
+
+    //导出表格
+    @ResponseBody
+    @RequestMapping(value = "/outputuserexcel")
+    public ResponseResult outputExcel(){
+        ResponseResult result=new ResponseResult();
+        String title="用户信息表";
+        String[] tip={"用户编号","用户姓名","登录账号","手机号","地址"};
+        List<UserVo> list=new ArrayList<>();
+        List<User> users=userService.selectUserListByUser(new User());
+        for(User user:users){
+            UserVo userVo=new UserVo();
+            userVo.setUserid(user.getUserId().toString());
+            userVo.setLoginName(user.getLoginName());
+            userVo.setUserName(user.getUserName());
+            userVo.setPhone(user.getPhone());
+            userVo.setAddress(user.getAddress());
+            list.add(userVo);
+        }
+        try{
+            ExcelUtil.exportUser(title,tip,list);
+            result.setResponseCode(ResponseCodeConstant.RESPONSE_CODE_SUCCESS);
+            result.setMessage("导出成功!");
+        }catch (Exception e){
+            e.printStackTrace();
+            result.setResponseCode(ResponseCodeConstant.RESPONSE_CODE_FAIL);
+            result.setMessage("导出失败!");
+        }
+        return result;
+    }
+
+
 
 }

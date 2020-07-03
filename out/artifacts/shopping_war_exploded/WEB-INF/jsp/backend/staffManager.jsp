@@ -196,6 +196,8 @@
         <br>
         <br>
         <input type="button" value="添加管理员" class="btn btn-primary" id="doAddManger">
+            <a type="button"   class="btn btn-primary"  id="excel" href="${pageContext.request.contextPath }/staff/OutputExcel?staffName=${staffParameter.staffName}&loginName=${staffParameter.loginName}&phone=${staffParameter.phone}&email=${staffParameter.email}&role=${staffParameter.role}&isValid=${staffParameter.isValid}&staffParameter=${staffParameter}&deptId=${deptId}">导出excel</a>
+            <a type="button"  class="btn btn-primary" href="${pageContext.request.contextPath }/staff/ImportExcel">导入excel</a>
         <!-- 添加管理员 -->
         <div class="modal fade" tabindex="-1" id="myMangerUser">
             <!-- 窗口声明 -->

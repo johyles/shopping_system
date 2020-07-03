@@ -166,7 +166,8 @@
 	        </div>
 	        <div class="panel-body">
 	            <input type="button" value="添加商品类型" class="btn btn-primary" id="doAddProTpye">
-				<%--<intput type="button" value="导出商品类型" class="btn btn-primary" id="doExportProTpye">--%>
+				<a type="button"   class="btn btn-primary"  id="excel" href="${pageContext.request.contextPath }/type/OutputExcel">导出excel</a>
+				<a type="button"  class="btn btn-primary" href="${pageContext.request.contextPath }/type/ImportExcel">导入excel</a>
 	            <div class="modal fade" tabindex="-1" id="ProductType">
 	                <!-- 窗口声明 -->
 	                <div class="modal-dialog modal-lg">

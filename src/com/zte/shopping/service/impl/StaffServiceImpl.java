@@ -103,20 +103,22 @@ public class StaffServiceImpl implements IStaffService {
 
 		// 根据账号查询员工信息
 		Staff selectStaff = iStaffMapper.selectByLoginName(staff.getLoginName());
+
 		// 判断该管理员账号   是否已经存在
 		if (selectStaff != null)
 		{
 			throw new StaffExistException("该管理员账号已经存在");
 		}
 
-		// 设置员工所在部门
+		/*// 设置员工所在部门
 		Dept dept = new Dept();
 		dept.setDeptId(Integer.parseInt(deptId));
 
-		staff.setDept(dept);
+		staff.setDept(dept);*/
 
 		// 对密码进行加密
 		staff.setPassword(MD5Util.md5(staff.getPassword()));
+
 
 		// 创建的员工  为  有效   状态
 		staff.setIsValid(StatusConstant.STAFF_IS_VALID_ENABLE);
